@@ -45,12 +45,12 @@
     z-index: 2;
   }
   .hero-avatar {
-    width: 72px;
-    height: 72px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     object-fit: cover;
     object-position: top;
-    border: 2px solid var(--bege);
+    border: 3px solid var(--bege);
     flex-shrink: 0;
   }
   .hero-identity {  }
@@ -73,7 +73,7 @@
     flex: 1;
     display: flex;
     align-items: center;
-    padding: 60px 6% 80px;
+    padding: 30px 6% 60px;
     position: relative;
     z-index: 1;
     max-width: 700px;
@@ -195,7 +195,7 @@
   /* SOBRE */
   .sobre-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
   .sobre-img-wrapper { position: relative; }
-  .sobre-img-wrapper img { width: 100%; aspect-ratio: 4/5; object-fit: cover; object-position: top; border-radius: 2px; display: block; }
+  .sobre-img-wrapper img { width: 70%; aspect-ratio: 4/5; object-fit: cover; object-position: top; border-radius: 2px; display: block; }
   .sobre-badge {
     position: absolute; bottom: -20px; right: -20px; background: var(--bege);
     color: var(--marrom); padding: 18px 22px; font-weight: 500; font-size: 0.82rem;
@@ -405,5 +405,38 @@ function enviarWhatsApp() {
   window.open(`https://wa.me/5562982680220?text=${texto}`, '_blank');
 }
 </script>
+
+<script>
+// Force iframe resize on Google Sites
+function sendHeight() {
+  const height = document.documentElement.scrollHeight;
+  window.parent.postMessage({ type: 'setHeight', height: height }, '*');
+  // Also try direct style
+  document.documentElement.style.height = 'auto';
+  document.body.style.height = 'auto';
+  document.body.style.overflow = 'visible';
+}
+
+// Run on load and on resize
+window.addEventListener('load', function() {
+  setTimeout(sendHeight, 500);
+  setTimeout(sendHeight, 1500);
+  setTimeout(sendHeight, 3000);
+});
+window.addEventListener('resize', sendHeight);
+
+// Also set explicit min-height via CSS
+const style = document.createElement('style');
+style.textContent = `
+  html, body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+  }
+`;
+document.head.appendChild(style);
+</script>
+
 </body>
 </html>
