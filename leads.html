@@ -680,9 +680,6 @@
       <input class="filter-input" type="text" id="search-input" placeholder="🔍 Buscar por nome ou telefone..." oninput="applyFilters()">
       <select class="filter-select" id="filter-campanha" onchange="applyFilters()">
         <option value="">Todas as campanhas</option>
-        <option value="NOW Laguna">NOW Laguna</option>
-        <option value="NOW Alameda das Águas">NOW Alameda das Águas</option>
-        <option value="Wish Gran 29">Wish Gran 29</option>
       </select>
       <select class="filter-select" id="filter-status" onchange="applyFilters()">
         <option value="">Todos os status</option>
@@ -931,6 +928,7 @@ async function loadLeads() {
 
   allLeads = data || [];
   updateStats();
+  populateCampanhaFilter();
   applyFilters();
 }
 
@@ -939,6 +937,14 @@ function updateStats() {
   ['novo','contatado','negociando','fechado'].forEach(s => {
     document.getElementById('stat-'+s).textContent = allLeads.filter(l => l.status === s).length;
   });
+}
+
+function populateCampanhaFilter() {
+  const sel = document.getElementById('filter-campanha');
+  const current = sel.value;
+  const campanhas = [...new Set(allLeads.map(l => l.campanha).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">Todas as campanhas</option>' +
+    campanhas.map(c => `<option value="${c}"${c === current ? ' selected' : ''}>${c}</option>`).join('');
 }
 
 function applyFilters() {
