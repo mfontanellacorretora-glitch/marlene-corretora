@@ -100,6 +100,8 @@
   }
 
   /* HERO TOP BAR com foto da Marlene */
+  .area-restrita-link { margin-left:auto; color:rgba(255,255,255,0.45); font-size:0.75rem; text-decoration:none; letter-spacing:1px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.2); padding:6px 14px; border-radius:4px; transition:all 0.2s; }
+  .area-restrita-link:hover { color:rgba(255,255,255,0.8); border-color:rgba(255,255,255,0.4); }
   .hero-topbar {
     display: flex;
     align-items: center;
@@ -287,7 +289,9 @@
 
   /* MOBILE */
   @media (max-width: 640px) {
-    .hero-topbar { padding: 20px 5%; gap: 14px; }
+    .area-restrita-link { margin-left:auto; color:rgba(255,255,255,0.45); font-size:0.75rem; text-decoration:none; letter-spacing:1px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.2); padding:6px 14px; border-radius:4px; transition:all 0.2s; }
+  .area-restrita-link:hover { color:rgba(255,255,255,0.8); border-color:rgba(255,255,255,0.4); }
+  .hero-topbar { padding: 20px 5%; gap: 14px; }
     .hero-avatar { width: 56px; height: 56px; }
     .hero-name { font-size: 1.2rem; }
     .hero-role { font-size: 0.7rem; }
@@ -317,6 +321,7 @@
         <div class="hero-name">Marlene Fontanella</div>
         <div class="hero-role">Corretora de Imóveis | CRECI-GO</div>
       </div>
+      <a href="leads.html" class="area-restrita-link">Área Restrita</a>
     </div>
     <div class="hero-content">
       <div>
