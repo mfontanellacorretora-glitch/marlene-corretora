@@ -638,7 +638,7 @@
   .modal-field .field-val { font-size: 14px; color: var(--text); }
   .modal-field.full { grid-column: 1 / -1; }
 
-  .modal-field select, .modal-field textarea {
+  .modal-field select, .modal-field textarea, .modal-field input {
     width: 100%;
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -651,7 +651,39 @@
     transition: border-color 0.2s;
     resize: vertical;
   }
-  .modal-field select:focus, .modal-field textarea:focus { border-color: var(--ebm-green); }
+  .modal-field select:focus, .modal-field textarea:focus, .modal-field input:focus { border-color: var(--ebm-green); }
+  .modal-field input[type="number"] { -moz-appearance: textfield; }
+  .modal-field input[type="number"]::-webkit-outer-spin-button,
+  .modal-field input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  /* ── FLUXO DA NEGOCIAÇÃO ── */
+  .fluxo-card {
+    background: linear-gradient(135deg, rgba(176,128,32,0.09), rgba(176,128,32,0.03));
+    border: 1px solid rgba(176,128,32,0.35);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+  .fluxo-card-title { font-size: 14px; font-weight: 600; color: #8a6418; margin-bottom: 16px; }
+  .fluxo-highlight-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .fluxo-highlight-row input, #fluxo-entrada {
+    font-size: 16px; font-weight: 700; border-color: rgba(176,128,32,0.4) !important;
+  }
+  .fluxo-parcel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+  .fluxo-parcel-item label {
+    display: block; font-size: 11px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 5px;
+  }
+  .fluxo-parcel-pair { display: grid; grid-template-columns: 56px 1fr; gap: 6px; }
+  .fluxo-parcel-pair input { padding: 8px 10px; font-size: 13px; }
+  .fluxo-total-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-top: 18px; padding-top: 14px; border-top: 1px dashed rgba(176,128,32,0.35);
+  }
+  .fluxo-total-label { font-size: 12px; color: var(--text-muted); }
+  .fluxo-total-value { font-size: 16px; font-weight: 700; color: #8a6418; }
+  .fluxo-total-diff { font-size: 11px; font-weight: 500; margin-left: 8px; }
+  .fluxo-total-diff.ok { color: var(--ebm-green); }
+  .fluxo-total-diff.warn { color: var(--perdido); }
 
   .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 
@@ -1059,31 +1091,73 @@
         <textarea id="modal-obs" rows="4" placeholder="Anotações sobre este lead..."></textarea>
       </div>
       <div class="modal-field full" id="fluxo-block" style="display:none">
-        <label style="display:block;margin-bottom:10px">💰 Fluxo da Negociação</label>
-        <div class="modal-grid" style="grid-template-columns:repeat(2,1fr)">
-          <div class="modal-field">
-            <label>Valor (R$)</label>
-            <input type="number" id="fluxo-valor" step="0.01" placeholder="0,00" oninput="calcComissao()">
+        <div class="fluxo-card">
+          <div class="fluxo-card-title">💰 Fluxo da Negociação</div>
+
+          <div class="fluxo-highlight-row">
+            <div class="modal-field">
+              <label>Valor do Imóvel (R$)</label>
+              <input type="text" id="fluxo-valor" placeholder="0,00" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
+            </div>
+            <div class="modal-field">
+              <label>Sinal (R$)</label>
+              <input type="text" id="fluxo-sinal" placeholder="0,00" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
+            </div>
           </div>
+
           <div class="modal-field">
             <label>Entrada (R$)</label>
-            <input type="number" id="fluxo-entrada" step="0.01" placeholder="0,00">
+            <input type="text" id="fluxo-entrada" placeholder="0,00" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
           </div>
-          <div class="modal-field">
-            <label>Sinal (R$)</label>
-            <input type="number" id="fluxo-sinal" step="0.01" placeholder="0,00">
+
+          <div class="fluxo-parcel-grid">
+            <div class="fluxo-parcel-item">
+              <label>Mensais</label>
+              <div class="fluxo-parcel-pair">
+                <input type="number" id="fluxo-qtd-mensais" min="0" placeholder="Qtd" oninput="calcFluxoTotal()">
+                <input type="text" id="fluxo-valor-mensais" placeholder="R$ valor da parcela" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
+              </div>
+            </div>
+            <div class="fluxo-parcel-item">
+              <label>Semestrais</label>
+              <div class="fluxo-parcel-pair">
+                <input type="number" id="fluxo-qtd-semestrais" min="0" placeholder="Qtd" oninput="calcFluxoTotal()">
+                <input type="text" id="fluxo-valor-semestrais" placeholder="R$ valor da parcela" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
+              </div>
+            </div>
+            <div class="fluxo-parcel-item">
+              <label>Anuais</label>
+              <div class="fluxo-parcel-pair">
+                <input type="number" id="fluxo-qtd-anuais" min="0" placeholder="Qtd" oninput="calcFluxoTotal()">
+                <input type="text" id="fluxo-valor-anuais" placeholder="R$ valor da parcela" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
+              </div>
+            </div>
+            <div class="fluxo-parcel-item">
+              <label>Prosoluto</label>
+              <div class="fluxo-parcel-pair">
+                <input type="number" id="fluxo-qtd-prosoluto" min="0" placeholder="Qtd" oninput="calcFluxoTotal()">
+                <input type="text" id="fluxo-valor-prosoluto" placeholder="R$ valor da parcela" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
+              </div>
+            </div>
           </div>
-          <div class="modal-field">
-            <label>Condições de Pagamento</label>
-            <input type="text" id="fluxo-condicoes" placeholder="Ex: 30x + saldo na entrega">
+
+          <div class="fluxo-total-row">
+            <span class="fluxo-total-label">Total calculado (Sinal + Entrada + Parcelas)</span>
+            <span>
+              <span class="fluxo-total-value" id="fluxo-total-display">R$ 0,00</span>
+              <span class="fluxo-total-diff" id="fluxo-total-diff"></span>
+            </span>
           </div>
-          <div class="modal-field">
-            <label>Comissão (%)</label>
-            <input type="number" id="fluxo-comissao-pct" step="0.01" placeholder="0,00" oninput="calcComissao()">
-          </div>
-          <div class="modal-field">
-            <label>Comissão (R$)</label>
-            <input type="number" id="fluxo-comissao-valor" step="0.01" placeholder="0,00">
+
+          <div class="modal-grid" style="grid-template-columns:repeat(2,1fr); margin-top:18px; margin-bottom:0">
+            <div class="modal-field">
+              <label>Comissão (%)</label>
+              <input type="number" id="fluxo-comissao-pct" step="0.01" placeholder="0,00" oninput="calcComissao()">
+            </div>
+            <div class="modal-field">
+              <label>Comissão (R$)</label>
+              <input type="text" id="fluxo-comissao-valor" placeholder="0,00" inputmode="numeric" oninput="maskCurrencyInput(this)">
+            </div>
           </div>
         </div>
       </div>
@@ -1436,13 +1510,21 @@ function openModal(id) {
   document.getElementById('modal-status').value = lead.status || 'novo';
   document.getElementById('modal-obs').value = lead.observacao || '';
 
-  document.getElementById('fluxo-valor').value = lead.valor ?? '';
-  document.getElementById('fluxo-entrada').value = lead.entrada ?? '';
-  document.getElementById('fluxo-sinal').value = lead.sinal ?? '';
-  document.getElementById('fluxo-condicoes').value = lead.condicoes_pagamento ?? '';
+  setCurrencyValue('fluxo-valor', lead.valor);
+  setCurrencyValue('fluxo-entrada', lead.entrada);
+  setCurrencyValue('fluxo-sinal', lead.sinal);
+  document.getElementById('fluxo-qtd-mensais').value = lead.qtd_mensais ?? '';
+  setCurrencyValue('fluxo-valor-mensais', lead.valor_mensais);
+  document.getElementById('fluxo-qtd-semestrais').value = lead.qtd_semestrais ?? '';
+  setCurrencyValue('fluxo-valor-semestrais', lead.valor_semestrais);
+  document.getElementById('fluxo-qtd-anuais').value = lead.qtd_anuais ?? '';
+  setCurrencyValue('fluxo-valor-anuais', lead.valor_anuais);
+  document.getElementById('fluxo-qtd-prosoluto').value = lead.qtd_prosoluto ?? '';
+  setCurrencyValue('fluxo-valor-prosoluto', lead.valor_prosoluto);
   document.getElementById('fluxo-comissao-pct').value = lead.comissao_pct ?? '';
-  document.getElementById('fluxo-comissao-valor').value = lead.comissao_valor ?? '';
+  setCurrencyValue('fluxo-comissao-valor', lead.comissao_valor);
   toggleFluxoBlock();
+  calcFluxoTotal();
 
   // métricas
   const mmDias = document.getElementById('mm-dias-criado');
@@ -1481,11 +1563,59 @@ function toggleFluxoBlock() {
   document.getElementById('fluxo-block').style.display = (status === 'negociando' || status === 'fechado') ? 'block' : 'none';
 }
 
+// ── Moeda BR: máscara enquanto digita + parser para número ──
+function maskCurrencyInput(el) {
+  let v = el.value.replace(/\D/g, '');
+  if (!v) { el.value = ''; return; }
+  v = (parseInt(v, 10) / 100).toFixed(2);
+  el.value = v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function parseCurrency(str) {
+  if (!str) return null;
+  const n = parseFloat(str.toString().replace(/\./g, '').replace(',', '.'));
+  return isNaN(n) ? null : n;
+}
+function setCurrencyValue(id, num) {
+  const el = document.getElementById(id);
+  if (num === null || num === undefined || isNaN(num)) { el.value = ''; return; }
+  el.value = Number(num).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+function formatBRL(num) {
+  return 'R$ ' + Number(num || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function calcFluxoTotal() {
+  const sinal = parseCurrency(document.getElementById('fluxo-sinal').value) || 0;
+  const entrada = parseCurrency(document.getElementById('fluxo-entrada').value) || 0;
+  const valorImovel = parseCurrency(document.getElementById('fluxo-valor').value) || 0;
+
+  let totalParcelas = 0;
+  ['mensais','semestrais','anuais','prosoluto'].forEach(tipo => {
+    const qtd = parseInt(document.getElementById('fluxo-qtd-' + tipo).value, 10) || 0;
+    const valor = parseCurrency(document.getElementById('fluxo-valor-' + tipo).value) || 0;
+    totalParcelas += qtd * valor;
+  });
+
+  const total = sinal + entrada + totalParcelas;
+  document.getElementById('fluxo-total-display').textContent = formatBRL(total);
+
+  const diffEl = document.getElementById('fluxo-total-diff');
+  if (!valorImovel) { diffEl.textContent = ''; diffEl.className = 'fluxo-total-diff'; return; }
+  const diff = total - valorImovel;
+  if (Math.abs(diff) < 0.01) {
+    diffEl.textContent = '✓ bate com o valor do imóvel';
+    diffEl.className = 'fluxo-total-diff ok';
+  } else {
+    diffEl.textContent = (diff > 0 ? '+' : '') + formatBRL(diff) + ' vs. valor do imóvel';
+    diffEl.className = 'fluxo-total-diff warn';
+  }
+}
+
 function calcComissao() {
-  const valor = parseFloat(document.getElementById('fluxo-valor').value) || 0;
+  const valor = parseCurrency(document.getElementById('fluxo-valor').value) || 0;
   const pct = parseFloat(document.getElementById('fluxo-comissao-pct').value) || 0;
   if (valor && pct) {
-    document.getElementById('fluxo-comissao-valor').value = (valor * pct / 100).toFixed(2);
+    setCurrencyValue('fluxo-comissao-valor', valor * pct / 100);
   }
 }
 
@@ -1496,12 +1626,19 @@ async function saveLead() {
 
   const updateData = { status, observacao: obs };
   if (status === 'negociando' || status === 'fechado') {
-    updateData.valor = parseFloat(document.getElementById('fluxo-valor').value) || null;
-    updateData.entrada = parseFloat(document.getElementById('fluxo-entrada').value) || null;
-    updateData.sinal = parseFloat(document.getElementById('fluxo-sinal').value) || null;
-    updateData.condicoes_pagamento = document.getElementById('fluxo-condicoes').value.trim() || null;
+    updateData.valor = parseCurrency(document.getElementById('fluxo-valor').value);
+    updateData.entrada = parseCurrency(document.getElementById('fluxo-entrada').value);
+    updateData.sinal = parseCurrency(document.getElementById('fluxo-sinal').value);
+    updateData.qtd_mensais = parseInt(document.getElementById('fluxo-qtd-mensais').value, 10) || null;
+    updateData.valor_mensais = parseCurrency(document.getElementById('fluxo-valor-mensais').value);
+    updateData.qtd_semestrais = parseInt(document.getElementById('fluxo-qtd-semestrais').value, 10) || null;
+    updateData.valor_semestrais = parseCurrency(document.getElementById('fluxo-valor-semestrais').value);
+    updateData.qtd_anuais = parseInt(document.getElementById('fluxo-qtd-anuais').value, 10) || null;
+    updateData.valor_anuais = parseCurrency(document.getElementById('fluxo-valor-anuais').value);
+    updateData.qtd_prosoluto = parseInt(document.getElementById('fluxo-qtd-prosoluto').value, 10) || null;
+    updateData.valor_prosoluto = parseCurrency(document.getElementById('fluxo-valor-prosoluto').value);
     updateData.comissao_pct = parseFloat(document.getElementById('fluxo-comissao-pct').value) || null;
-    updateData.comissao_valor = parseFloat(document.getElementById('fluxo-comissao-valor').value) || null;
+    updateData.comissao_valor = parseCurrency(document.getElementById('fluxo-comissao-valor').value);
   }
 
   const { error } = await sb.from('leads').update(updateData).eq('id', currentLeadId);
