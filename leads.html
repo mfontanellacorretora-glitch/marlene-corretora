@@ -740,22 +740,6 @@
   .bar-fill { height: 100%; background: var(--ebm-green); border-radius: 2px; transition: width 0.6s ease; }
 
   #view-reports { display: none; }
-  #view-imoveis { display: none; }
-  .portfolio-toggle { display: flex; gap: 6px; background: var(--surface2); padding: 4px; border-radius: 100px; border: 1px solid var(--border); }
-  .toggle-btn { background: transparent; border: none; color: var(--text); padding: 8px 18px; border-radius: 100px; font-family: inherit; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-  .toggle-btn.active { background: var(--ebm-green); color: #fff; }
-  .toggle-btn:not(.active):hover { background: rgba(0,0,0,0.04); }
-  .imoveis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 18px; }
-  .imovel-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .imovel-card-img { height: 140px; background: var(--surface2); overflow: hidden; }
-  .imovel-card-img img { width: 100%; height: 100%; object-fit: cover; }
-  .imovel-card-body { padding: 14px 16px; }
-  .imovel-card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .imovel-card-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
-  .imovel-card-actions { display: flex; gap: 8px; }
-  .imovel-card-actions button { flex: 1; padding: 7px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 12px; cursor: pointer; }
-  .imovel-card-actions button.danger { color: var(--perdido); border-color: rgba(220,38,38,0.3); }
-  .imovel-card-actions button:hover { background: var(--border); }
   #view-table { display: block; }
 </style>
 </head>
@@ -792,6 +776,7 @@
         </svg>
         <div class="notif-badge" id="notif-badge"></div>
       </div>
+      <a class="btn-site" href="imoveis.html" target="_blank" rel="noopener">🏠 Imóveis</a>
       <a class="btn-site" href="https://mfontanellacorretora-glitch.github.io/marlene-corretora" target="_blank" rel="noopener">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         Ver Site
@@ -828,7 +813,6 @@
   <!-- TABS -->
   <div class="tabs">
     <div class="tab active" onclick="switchTab('leads')">Leads</div>
-    <div class="tab" onclick="switchTab('imoveis')">Imóveis</div>
     <div class="tab" onclick="switchTab('reports')">Relatórios</div>
   </div>
 
@@ -854,6 +838,11 @@
         <option value="manual">Manual</option>
         <option value="imobiliaria">Imobiliária</option>
         <option value="importacao">Importação</option>
+      </select>
+      <select class="filter-select" id="filter-tipo-interesse" onchange="applyFilters()">
+        <option value="">Empreendimento e Terreno</option>
+        <option value="empreendimento">Empreendimento</option>
+        <option value="terreno">Terreno</option>
       </select>
       <div class="filters-right">
         <div class="view-toggle">
@@ -921,35 +910,6 @@
     <div class="section-title">Relatórios</div>
     <div class="report-grid" id="report-grid"></div>
   </div>
-
-  <!-- VIEW IMÓVEIS -->
-  <div id="view-imoveis">
-    <div class="filters-bar">
-      <div class="portfolio-toggle">
-        <button class="toggle-btn active" id="btn-imv-empreendimentos" onclick="setImovelTipo('empreendimentos')">Empreendimentos</button>
-        <button class="toggle-btn" id="btn-imv-terrenos" onclick="setImovelTipo('terrenos')">Terrenos</button>
-      </div>
-      <div class="filters-right">
-        <button class="btn-add" onclick="openNewImovel()">+ Novo</button>
-      </div>
-    </div>
-    <div id="imoveis-grid" class="imoveis-grid"></div>
-  </div>
-</div>
-
-<!-- MODAL NOVO/EDITAR IMÓVEL -->
-<div class="fm-overlay" id="imovel-overlay">
-  <div class="fm-modal">
-    <div class="fm-header">
-      <div class="fm-title" id="imovel-modal-title">Novo Empreendimento</div>
-      <button class="fm-close" onclick="closeImovelModal()">×</button>
-    </div>
-    <div class="fm-body" id="imovel-modal-body"></div>
-    <div class="fm-footer">
-      <button class="fm-btn" onclick="closeImovelModal()">Cancelar</button>
-      <button class="fm-btn fm-btn-primary" onclick="saveImovel()">Salvar</button>
-    </div>
-  </div>
 </div>
 
 <!-- MODAL NOVO LEAD -->
@@ -980,9 +940,16 @@
           <select id="nl-origem" onchange="handleOrigemSelectChange(this)"></select>
         </div>
         <div class="fm-field">
-          <label>Empreendimento</label>
-          <input type="text" id="nl-emp" placeholder="Ex: NOW Laguna">
+          <label>Tipo de Interesse *</label>
+          <select id="nl-tipo-interesse">
+            <option value="empreendimento">Empreendimento</option>
+            <option value="terreno">Terreno</option>
+          </select>
         </div>
+      </div>
+      <div class="fm-field">
+        <label>Imóvel de Interesse</label>
+        <input type="text" id="nl-emp" placeholder="Ex: NOW Laguna ou Lote Setor Pedro Ludovico">
       </div>
       <div class="fm-field">
         <label>Campanha / Detalhe</label>
@@ -1121,6 +1088,13 @@
       <div class="modal-field">
         <label>Empreendimento</label>
         <div class="field-val" id="modal-emp"></div>
+      </div>
+      <div class="modal-field">
+        <label>Tipo de Interesse</label>
+        <select id="modal-tipo-interesse">
+          <option value="empreendimento">🏠 Empreendimento</option>
+          <option value="terreno">🌳 Terreno</option>
+        </select>
       </div>
       <div class="modal-field full">
         <label>Status</label>
@@ -1408,13 +1382,15 @@ function applyFilters() {
   const camp = document.getElementById('filter-campanha').value;
   const status = document.getElementById('filter-status').value;
   const origem = document.getElementById('filter-origem').value;
+  const tipoInteresse = document.getElementById('filter-tipo-interesse').value;
 
   filteredLeads = allLeads.filter(l => {
     const matchSearch = !search || (l.nome||'').toLowerCase().includes(search) || (l.telefone||'').includes(search);
     const matchCamp = !camp || l.campanha === camp;
     const matchStatus = !status || l.status === status;
     const matchOrigem = !origem || (l.origem || 'meta') === origem;
-    return matchSearch && matchCamp && matchStatus && matchOrigem;
+    const matchTipo = !tipoInteresse || l.tipo_interesse === tipoInteresse;
+    return matchSearch && matchCamp && matchStatus && matchOrigem && matchTipo;
   });
 
   if (currentView === 'table') renderTable();
@@ -1453,7 +1429,7 @@ function renderTable() {
       <td><div class="lead-name">${l.nome || '—'}</div></td>
       <td><div class="lead-phone">${l.telefone || '—'}</div></td>
       <td>${origemTag(l.origem)}</td>
-      <td><span class="camp-tag">${l.campanha || '—'}</span></td>
+      <td><span class="camp-tag">${l.campanha || '—'}</span> <span title="${l.tipo_interesse === 'terreno' ? 'Terreno' : 'Empreendimento'}" style="font-size:13px">${l.tipo_interesse === 'terreno' ? '🌳' : '🏠'}</span></td>
       <td><span class="badge badge-${l.status || 'novo'}">${labelStatus(l.status)}</span></td>
       <td>
         <div class="score-wrap">
@@ -1554,6 +1530,7 @@ function openModal(id) {
   document.getElementById('modal-camp').textContent = lead.campanha || '—';
   document.getElementById('modal-emp').textContent = lead.empreendimento || '—';
   document.getElementById('modal-status').value = lead.status || 'novo';
+  document.getElementById('modal-tipo-interesse').value = lead.tipo_interesse || 'empreendimento';
   document.getElementById('modal-obs').value = lead.observacao || '';
 
   setCurrencyValue('fluxo-valor', lead.valor);
@@ -1669,8 +1646,9 @@ async function saveLead() {
   if (!currentLeadId) return;
   const status = document.getElementById('modal-status').value;
   const obs = document.getElementById('modal-obs').value;
+  const tipoInteresse = document.getElementById('modal-tipo-interesse').value;
 
-  const updateData = { status, observacao: obs };
+  const updateData = { status, observacao: obs, tipo_interesse: tipoInteresse };
   if (status === 'negociando' || status === 'fechado') {
     updateData.valor = parseCurrency(document.getElementById('fluxo-valor').value);
     updateData.entrada = parseCurrency(document.getElementById('fluxo-entrada').value);
@@ -1698,6 +1676,7 @@ async function saveLead() {
 // ─── NOVO LEAD (manual) ──────────────────────────────
 function openNewLead() {
   ['nl-nome','nl-telefone','nl-email','nl-emp','nl-campanha','nl-obs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('nl-tipo-interesse').value = 'empreendimento';
   const origemSel = document.getElementById('nl-origem');
   if ([...origemSel.options].some(o => o.value === 'manual')) origemSel.value = 'manual';
   document.getElementById('newlead-overlay').classList.add('open');
@@ -1718,6 +1697,7 @@ async function saveNewLead() {
     telefone,
     email: document.getElementById('nl-email').value.trim() || null,
     origem: document.getElementById('nl-origem').value,
+    tipo_interesse: document.getElementById('nl-tipo-interesse').value,
     empreendimento: document.getElementById('nl-emp').value.trim() || null,
     campanha: document.getElementById('nl-campanha').value.trim() || null,
     observacao: document.getElementById('nl-obs').value.trim() || null,
@@ -1904,166 +1884,6 @@ function exportCSV() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'leads-marlene.csv'; a.click();
   URL.revokeObjectURL(url);
-}
-
-// ─── IMÓVEIS (Empreendimentos / Terrenos) ────────────
-let imovelTipo = 'empreendimentos';
-let allImoveis = [];
-let currentImovelId = null;
-
-function setImovelTipo(tipo) {
-  imovelTipo = tipo;
-  document.getElementById('btn-imv-empreendimentos').classList.toggle('active', tipo === 'empreendimentos');
-  document.getElementById('btn-imv-terrenos').classList.toggle('active', tipo === 'terrenos');
-  loadImoveis();
-}
-
-async function loadImoveis() {
-  const grid = document.getElementById('imoveis-grid');
-  grid.innerHTML = '<div style="padding:30px;color:var(--text-muted)">Carregando...</div>';
-  const { data, error } = await sb.from(imovelTipo).select('*').order('created_at', { ascending: false });
-  if (error) { grid.innerHTML = `<div style="padding:30px;color:var(--perdido)">Erro: ${error.message}</div>`; return; }
-  allImoveis = data || [];
-  if (!allImoveis.length) { grid.innerHTML = '<div style="padding:30px;color:var(--text-muted)">Nenhum cadastro ainda. Clique em "+ Novo".</div>'; return; }
-  grid.innerHTML = allImoveis.map(item => {
-    const titulo = imovelTipo === 'empreendimentos' ? item.nome : item.identificacao;
-    const sub = imovelTipo === 'empreendimentos'
-      ? [item.programa, item.construtora].filter(Boolean).join(' · ')
-      : [item.bairro, item.valor ? formatBRL(item.valor) : null].filter(Boolean).join(' · ');
-    return `
-      <div class="imovel-card">
-        <div class="imovel-card-img">${item.imagem_capa ? `<img src="${item.imagem_capa}" alt="${titulo}">` : ''}</div>
-        <div class="imovel-card-body">
-          <div class="imovel-card-title">${titulo}</div>
-          <div class="imovel-card-sub">${sub || '—'} ${item.ativo === false ? '· (inativo)' : ''}</div>
-          <div class="imovel-card-actions">
-            <button onclick="openEditImovel(${item.id})">Editar</button>
-            <button class="danger" onclick="deleteImovel(${item.id})">Excluir</button>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function imovelFormFields(item) {
-  item = item || {};
-  if (imovelTipo === 'empreendimentos') {
-    return `
-      <div class="fm-field"><label>Nome *</label><input type="text" id="imv-nome" value="${item.nome || ''}" placeholder="Ex: NOW Laguna"></div>
-      <div class="fm-field"><label>Descrição</label><textarea id="imv-descricao" rows="3">${item.descricao || ''}</textarea></div>
-      <div class="fm-row">
-        <div class="fm-field"><label>Sinal a partir de (R$)</label><input type="number" id="imv-sinal" value="${item.sinal_a_partir ?? ''}"></div>
-        <div class="fm-field"><label>Programa</label><input type="text" id="imv-programa" value="${item.programa || ''}" placeholder="Minha Casa Minha Vida"></div>
-      </div>
-      <div class="fm-row">
-        <div class="fm-field"><label>Financiamento</label><input type="text" id="imv-financiamento" value="${item.financiamento || ''}" placeholder="Caixa Econômica Federal"></div>
-        <div class="fm-field"><label>Construtora</label><input type="text" id="imv-construtora" value="${item.construtora || ''}"></div>
-      </div>
-      <div class="fm-row">
-        <div class="fm-field"><label>Metragem</label><input type="text" id="imv-metragem" value="${item.metragem || ''}" placeholder="45m² a 60m²"></div>
-        <div class="fm-field"><label>Quartos</label><input type="text" id="imv-quartos" value="${item.quartos || ''}" placeholder="2 ou 3 quartos"></div>
-      </div>
-      <div class="fm-field"><label>Tag (selo de destaque)</label><input type="text" id="imv-tag" value="${item.tag || ''}" placeholder="Minha Casa Minha Vida | EBM"></div>
-      <div class="fm-field"><label>Imagem de capa (URL)</label><input type="text" id="imv-imagem" value="${item.imagem_capa || ''}" placeholder="https://..."></div>
-      <div class="fm-field"><label>Ativo no site</label>
-        <select id="imv-ativo"><option value="true" ${item.ativo !== false ? 'selected' : ''}>Sim</option><option value="false" ${item.ativo === false ? 'selected' : ''}>Não</option></select>
-      </div>`;
-  }
-  return `
-    <div class="fm-field"><label>Identificação *</label><input type="text" id="imv-identificacao" value="${item.identificacao || ''}" placeholder="Ex: Lote Setor Pedro Ludovico"></div>
-    <div class="fm-field"><label>Empreendimento/Condomínio (se houver)</label><input type="text" id="imv-emp-nome" value="${item.empreendimento_nome || ''}"></div>
-    <div class="fm-row">
-      <div class="fm-field"><label>Bairro</label><input type="text" id="imv-bairro" value="${item.bairro || ''}"></div>
-      <div class="fm-field"><label>Valor (R$)</label><input type="number" id="imv-valor" value="${item.valor ?? ''}"></div>
-    </div>
-    <div class="fm-row">
-      <div class="fm-field"><label>Área Total (m²)</label><input type="number" id="imv-area-total" value="${item.area_total ?? ''}"></div>
-      <div class="fm-field"><label>Área do Lote (m²)</label><input type="number" id="imv-area-lote" value="${item.area_lote ?? ''}"></div>
-    </div>
-    <div class="fm-field"><label>Forma de Pagamento</label><input type="text" id="imv-pagamento" value="${item.forma_pagamento || ''}"></div>
-    <div class="fm-row">
-      <div class="fm-field"><label>Documentação</label><input type="text" id="imv-doc" value="${item.documentacao || ''}" placeholder="Escriturado / Em processo"></div>
-      <div class="fm-field"><label>Infraestrutura</label><input type="text" id="imv-infra" value="${item.infraestrutura || ''}" placeholder="Água, luz, asfalto"></div>
-    </div>
-    <div class="fm-field"><label>Imagem de capa (URL)</label><input type="text" id="imv-imagem" value="${item.imagem_capa || ''}" placeholder="https://..."></div>
-    <div class="fm-field"><label>Ativo no site</label>
-      <select id="imv-ativo"><option value="true" ${item.ativo !== false ? 'selected' : ''}>Sim</option><option value="false" ${item.ativo === false ? 'selected' : ''}>Não</option></select>
-    </div>`;
-}
-
-function openNewImovel() {
-  currentImovelId = null;
-  document.getElementById('imovel-modal-title').textContent = imovelTipo === 'empreendimentos' ? 'Novo Empreendimento' : 'Novo Terreno';
-  document.getElementById('imovel-modal-body').innerHTML = imovelFormFields();
-  document.getElementById('imovel-overlay').classList.add('open');
-}
-
-function openEditImovel(id) {
-  const item = allImoveis.find(i => i.id === id);
-  if (!item) return;
-  currentImovelId = id;
-  document.getElementById('imovel-modal-title').textContent = imovelTipo === 'empreendimentos' ? 'Editar Empreendimento' : 'Editar Terreno';
-  document.getElementById('imovel-modal-body').innerHTML = imovelFormFields(item);
-  document.getElementById('imovel-overlay').classList.add('open');
-}
-
-function closeImovelModal() {
-  document.getElementById('imovel-overlay').classList.remove('open');
-  currentImovelId = null;
-}
-
-async function saveImovel() {
-  let payload;
-  if (imovelTipo === 'empreendimentos') {
-    const nome = document.getElementById('imv-nome').value.trim();
-    if (!nome) { showToast('Atenção', 'Nome é obrigatório.'); return; }
-    payload = {
-      nome,
-      descricao: document.getElementById('imv-descricao').value.trim() || null,
-      sinal_a_partir: parseFloat(document.getElementById('imv-sinal').value) || null,
-      programa: document.getElementById('imv-programa').value.trim() || null,
-      financiamento: document.getElementById('imv-financiamento').value.trim() || null,
-      construtora: document.getElementById('imv-construtora').value.trim() || null,
-      metragem: document.getElementById('imv-metragem').value.trim() || null,
-      quartos: document.getElementById('imv-quartos').value.trim() || null,
-      tag: document.getElementById('imv-tag').value.trim() || null,
-      imagem_capa: document.getElementById('imv-imagem').value.trim() || null,
-      ativo: document.getElementById('imv-ativo').value === 'true',
-    };
-  } else {
-    const identificacao = document.getElementById('imv-identificacao').value.trim();
-    if (!identificacao) { showToast('Atenção', 'Identificação é obrigatória.'); return; }
-    payload = {
-      identificacao,
-      empreendimento_nome: document.getElementById('imv-emp-nome').value.trim() || null,
-      bairro: document.getElementById('imv-bairro').value.trim() || null,
-      valor: parseFloat(document.getElementById('imv-valor').value) || null,
-      area_total: parseFloat(document.getElementById('imv-area-total').value) || null,
-      area_lote: parseFloat(document.getElementById('imv-area-lote').value) || null,
-      forma_pagamento: document.getElementById('imv-pagamento').value.trim() || null,
-      documentacao: document.getElementById('imv-doc').value.trim() || null,
-      infraestrutura: document.getElementById('imv-infra').value.trim() || null,
-      imagem_capa: document.getElementById('imv-imagem').value.trim() || null,
-      ativo: document.getElementById('imv-ativo').value === 'true',
-    };
-  }
-
-  const query = currentImovelId
-    ? sb.from(imovelTipo).update(payload).eq('id', currentImovelId)
-    : sb.from(imovelTipo).insert(payload);
-  const { error } = await query;
-  if (error) { showToast('Erro', error.message); return; }
-  closeImovelModal();
-  loadImoveis();
-  showToast('Salvo', 'Cadastro atualizado com sucesso.');
-}
-
-async function deleteImovel(id) {
-  if (!confirm('Excluir este cadastro? Essa ação não pode ser desfeita.')) return;
-  const { error } = await sb.from(imovelTipo).delete().eq('id', id);
-  if (error) { showToast('Erro', error.message); return; }
-  loadImoveis();
-  showToast('Excluído', 'Cadastro removido.');
 }
 
 // ─── REPORTS ─────────────────────────────────────────

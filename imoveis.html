@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marlene Corretora | Gestão de Imóveis</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+
+  :root {
+    --bg: #f0f2f0;
+    --surface: #ffffff;
+    --surface2: #f5f7f5;
+    --border: #dde3dd;
+    --ebm-green: #1a5c45;
+    --ebm-green-dark: #134535;
+    --ebm-green-light: #2a7a5c;
+    --ebm-accent: #4caf82;
+    --text: #1a2e1a;
+    --text-muted: #6b7e6b;
+    --perdido: #c0392b;
+    --radius: 10px;
+  }
+
+#login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ebm-green-dark);
+    background-image: radial-gradient(ellipse at 30% 20%, rgba(76,175,130,0.15) 0%, transparent 60%);
+  }
+
+  .login-box {
+    width: 380px;
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 48px 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+
+  .login-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--ebm-green);
+    margin-bottom: 6px;
+  }
+
+  .login-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+  }
+
+  .login-box label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  .login-box input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .login-box input:focus { border-color: var(--ebm-green); }
+
+  .btn-login {
+    width: 100%;
+    background: var(--ebm-green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 13px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-login:hover { background: var(--ebm-green-light); }
+
+  .login-error {
+    color: var(--perdido);
+    font-size: 13px;
+    margin-top: 14px;
+    text-align: center;
+    display: none;
+  }
+
+
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 60px;
+    background: var(--ebm-green-dark);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 14px; }
+
+  .header-logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px;
+    color: #fff;
+  }
+
+  .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.2); }
+
+  .header-title { font-size: 13px; color: rgba(255,255,255,0.6); font-weight: 400; }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .btn-site {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.85);
+    border-radius: 8px;
+    padding: 6px 13px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s;
+  }
+  .btn-site:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+  .btn-logout {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    border-radius: 8px;
+    padding: 6px 13px;
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover { border-color: rgba(255,255,255,0.5); color: #fff; }
+
+
+  .fm-overlay {
+    position: fixed; inset: 0;
+    background: rgba(19,53,53,0.55);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px;
+  }
+  .fm-overlay.open { display: flex; }
+  .fm-modal {
+    background: var(--surface);
+    border-radius: 14px;
+    width: 100%; max-width: 520px;
+    max-height: 90vh; overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .fm-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .fm-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text); }
+  .fm-close {
+    background: none; border: none; font-size: 24px;
+    color: var(--text-muted); cursor: pointer; line-height: 1;
+  }
+  .fm-body { padding: 20px 24px; }
+  .fm-field { margin-bottom: 16px; }
+  .fm-field label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: var(--text-muted); margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .fm-field input, .fm-field select, .fm-field textarea {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 14px; color: var(--text);
+    background: var(--surface);
+  }
+  .fm-field input:focus, .fm-field select:focus, .fm-field textarea:focus {
+    outline: none; border-color: var(--ebm-green);
+  }
+  .fm-field textarea { resize: vertical; min-height: 70px; }
+  .fm-row { display: flex; gap: 12px; }
+  .fm-row .fm-field { flex: 1; }
+  .fm-footer {
+    padding: 16px 24px; border-top: 1px solid var(--border);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .fm-btn {
+    padding: 10px 20px; border-radius: 8px;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-muted);
+  }
+  .fm-btn-primary { background: var(--ebm-green); color: #fff; border-color: var(--ebm-green); }
+  .fm-btn-primary:hover { background: var(--ebm-green-dark); }
+  .fm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+
+  .toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--ebm-green);
+    border-radius: 10px; padding: 14px 20px;
+    font-size: 14px; color: var(--text);
+    z-index: 300;
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s ease; max-width: 320px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-title { font-weight: 600; margin-bottom: 3px; }
+  .toast-body { color: var(--text-muted); font-size: 13px; }
+
+  /* ── PÁGINA DE IMÓVEIS ── */
+  #app { display: none; }
+  .imoveis-toolbar { padding: 24px 28px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .portfolio-toggle { display: flex; gap: 6px; background: var(--surface); padding: 4px; border-radius: 100px; border: 1px solid var(--border); }
+  .toggle-btn { background: transparent; border: none; color: var(--text); padding: 9px 22px; border-radius: 100px; font-family: inherit; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .toggle-btn.active { background: var(--ebm-green); color: #fff; }
+  .toggle-btn:not(.active):hover { background: rgba(0,0,0,0.04); }
+  .btn-add { background: var(--ebm-green); color: #fff; border: none; padding: 11px 20px; border-radius: 8px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-add:hover { background: var(--ebm-green-dark); }
+  .imoveis-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; padding: 24px 28px 40px; }
+  .imovel-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.2s; }
+  .imovel-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+  .imovel-card-img { height: 150px; background: var(--surface2); overflow: hidden; }
+  .imovel-card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .imovel-card-body { padding: 16px 18px; }
+  .imovel-card-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .imovel-card-sub { font-size: 12.5px; color: var(--text-muted); margin-bottom: 14px; min-height: 16px; }
+  .imovel-card-actions { display: flex; gap: 8px; }
+  .imovel-card-actions button { flex: 1; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 12.5px; font-family: inherit; cursor: pointer; }
+  .imovel-card-actions button.danger { color: var(--perdido); border-color: rgba(220,38,38,0.3); }
+  .imovel-card-actions button:hover { background: var(--border); }
+  .imoveis-empty { padding: 60px 20px; text-align: center; color: var(--text-muted); grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">Marlene Corretora</div>
+    <div class="login-sub">Gestão de Empreendimentos e Terrenos</div>
+    <label>E-mail</label>
+    <input type="email" id="login-email" placeholder="seu@email.com">
+    <label>Senha</label>
+    <input type="password" id="login-password" placeholder="••••••••">
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error">E-mail ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">Marlene Corretora</div>
+      <div class="header-divider"></div>
+      <div class="header-title">Gestão de Imóveis</div>
+    </div>
+    <div class="header-right">
+      <a class="btn-site" href="leads.html">⚙ Controle de Leads</a>
+      <a class="btn-site" href="https://mfontanellacorretora-glitch.github.io/marlene-corretora" target="_blank" rel="noopener">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Ver Site
+      </a>
+      <span id="user-email" style="color:rgba(255,255,255,0.6); font-size:12px;"></span>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="imoveis-toolbar">
+    <div class="portfolio-toggle">
+      <button class="toggle-btn active" id="btn-tipo-empreendimentos" onclick="setImovelTipo('empreendimentos')">Empreendimentos</button>
+      <button class="toggle-btn" id="btn-tipo-terrenos" onclick="setImovelTipo('terrenos')">Terrenos</button>
+    </div>
+    <button class="btn-add" onclick="openNewImovel()">+ Novo</button>
+  </div>
+
+  <div id="imoveis-grid" class="imoveis-grid"></div>
+</div>
+
+<!-- MODAL NOVO/EDITAR IMÓVEL -->
+<div class="fm-overlay" id="imovel-overlay">
+  <div class="fm-modal">
+    <div class="fm-header">
+      <div class="fm-title" id="imovel-modal-title">Novo Empreendimento</div>
+      <button class="fm-close" onclick="closeImovelModal()">×</button>
+    </div>
+    <div class="fm-body" id="imovel-modal-body"></div>
+    <div class="fm-footer">
+      <button class="fm-btn" onclick="closeImovelModal()">Cancelar</button>
+      <button class="fm-btn fm-btn-primary" id="imovel-save-btn" onclick="saveImovel()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div class="toast-body" id="toast-body"></div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://rpilvdcjmvudhskfxiio.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_gt7rHR_3azIZ2E-0Ar3v_Q_x3g2cL9F';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let imovelTipo = 'empreendimentos';
+let allImoveis = [];
+let currentImovelId = null;
+
+function showToast(title, body) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-body').textContent = body;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+
+function formatBRL(num) {
+  if (num === null || num === undefined || num === '') return null;
+  return 'R$ ' + Number(num).toLocaleString('pt-BR');
+}
+
+// ─── AUTH ────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-password').value;
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { err.style.display = 'block'; return; }
+  showApp();
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+async function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const { data: { user } } = await sb.auth.getUser();
+  if (user) document.getElementById('user-email').textContent = user.email;
+  await loadImoveis();
+}
+
+// ─── IMÓVEIS (Empreendimentos / Terrenos) ────────────
+function setImovelTipo(tipo) {
+  imovelTipo = tipo;
+  document.getElementById('btn-tipo-empreendimentos').classList.toggle('active', tipo === 'empreendimentos');
+  document.getElementById('btn-tipo-terrenos').classList.toggle('active', tipo === 'terrenos');
+  loadImoveis();
+}
+
+async function loadImoveis() {
+  const grid = document.getElementById('imoveis-grid');
+  grid.innerHTML = '<div class="imoveis-empty">Carregando...</div>';
+  const { data, error } = await sb.from(imovelTipo).select('*').order('created_at', { ascending: false });
+  if (error) { grid.innerHTML = `<div class="imoveis-empty">Erro: ${error.message}</div>`; return; }
+  allImoveis = data || [];
+  if (!allImoveis.length) { grid.innerHTML = '<div class="imoveis-empty">Nenhum cadastro ainda. Clique em "+ Novo".</div>'; return; }
+  grid.innerHTML = allImoveis.map(item => {
+    const titulo = imovelTipo === 'empreendimentos' ? item.nome : item.identificacao;
+    const sub = imovelTipo === 'empreendimentos'
+      ? [item.programa, item.construtora].filter(Boolean).join(' · ')
+      : [item.bairro, item.valor ? formatBRL(item.valor) : null].filter(Boolean).join(' · ');
+    return `
+      <div class="imovel-card">
+        <div class="imovel-card-img">${item.imagem_capa ? `<img src="${item.imagem_capa}" alt="${titulo}">` : ''}</div>
+        <div class="imovel-card-body">
+          <div class="imovel-card-title">${titulo}</div>
+          <div class="imovel-card-sub">${sub || '—'} ${item.ativo === false ? '· (inativo)' : ''}</div>
+          <div class="imovel-card-actions">
+            <button onclick="openEditImovel(${item.id})">Editar</button>
+            <button class="danger" onclick="deleteImovel(${item.id})">Excluir</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function imovelFormFields(item) {
+  item = item || {};
+  if (imovelTipo === 'empreendimentos') {
+    return `
+      <div class="fm-field"><label>Nome *</label><input type="text" id="imv-nome" value="${item.nome || ''}" placeholder="Ex: NOW Laguna"></div>
+      <div class="fm-field"><label>Descrição</label><textarea id="imv-descricao">${item.descricao || ''}</textarea></div>
+      <div class="fm-row">
+        <div class="fm-field"><label>Sinal a partir de (R$)</label><input type="number" id="imv-sinal" value="${item.sinal_a_partir ?? ''}"></div>
+        <div class="fm-field"><label>Programa</label><input type="text" id="imv-programa" value="${item.programa || ''}" placeholder="Minha Casa Minha Vida"></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label>Financiamento</label><input type="text" id="imv-financiamento" value="${item.financiamento || ''}" placeholder="Caixa Econômica Federal"></div>
+        <div class="fm-field"><label>Construtora</label><input type="text" id="imv-construtora" value="${item.construtora || ''}"></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label>Metragem</label><input type="text" id="imv-metragem" value="${item.metragem || ''}" placeholder="45m² a 60m²"></div>
+        <div class="fm-field"><label>Quartos</label><input type="text" id="imv-quartos" value="${item.quartos || ''}" placeholder="2 ou 3 quartos"></div>
+      </div>
+      <div class="fm-field"><label>Tag (selo de destaque)</label><input type="text" id="imv-tag" value="${item.tag || ''}" placeholder="Minha Casa Minha Vida | EBM"></div>
+      <div class="fm-field"><label>Imagem de capa (URL)</label><input type="text" id="imv-imagem" value="${item.imagem_capa || ''}" placeholder="https://..."></div>
+      <div class="fm-field"><label>Ativo no site</label>
+        <select id="imv-ativo"><option value="true" ${item.ativo !== false ? 'selected' : ''}>Sim</option><option value="false" ${item.ativo === false ? 'selected' : ''}>Não</option></select>
+      </div>`;
+  }
+  return `
+    <div class="fm-field"><label>Identificação *</label><input type="text" id="imv-identificacao" value="${item.identificacao || ''}" placeholder="Ex: Lote Setor Pedro Ludovico"></div>
+    <div class="fm-field"><label>Empreendimento/Condomínio (se houver)</label><input type="text" id="imv-emp-nome" value="${item.empreendimento_nome || ''}"></div>
+    <div class="fm-row">
+      <div class="fm-field"><label>Bairro</label><input type="text" id="imv-bairro" value="${item.bairro || ''}"></div>
+      <div class="fm-field"><label>Valor (R$)</label><input type="number" id="imv-valor" value="${item.valor ?? ''}"></div>
+    </div>
+    <div class="fm-row">
+      <div class="fm-field"><label>Área Total (m²)</label><input type="number" id="imv-area-total" value="${item.area_total ?? ''}"></div>
+      <div class="fm-field"><label>Área do Lote (m²)</label><input type="number" id="imv-area-lote" value="${item.area_lote ?? ''}"></div>
+    </div>
+    <div class="fm-field"><label>Forma de Pagamento</label><input type="text" id="imv-pagamento" value="${item.forma_pagamento || ''}"></div>
+    <div class="fm-row">
+      <div class="fm-field"><label>Documentação</label><input type="text" id="imv-doc" value="${item.documentacao || ''}" placeholder="Escriturado / Em processo"></div>
+      <div class="fm-field"><label>Infraestrutura</label><input type="text" id="imv-infra" value="${item.infraestrutura || ''}" placeholder="Água, luz, asfalto"></div>
+    </div>
+    <div class="fm-field"><label>Imagem de capa (URL)</label><input type="text" id="imv-imagem" value="${item.imagem_capa || ''}" placeholder="https://..."></div>
+    <div class="fm-field"><label>Ativo no site</label>
+      <select id="imv-ativo"><option value="true" ${item.ativo !== false ? 'selected' : ''}>Sim</option><option value="false" ${item.ativo === false ? 'selected' : ''}>Não</option></select>
+    </div>`;
+}
+
+function openNewImovel() {
+  currentImovelId = null;
+  document.getElementById('imovel-modal-title').textContent = imovelTipo === 'empreendimentos' ? 'Novo Empreendimento' : 'Novo Terreno';
+  document.getElementById('imovel-modal-body').innerHTML = imovelFormFields();
+  document.getElementById('imovel-overlay').classList.add('open');
+}
+
+function openEditImovel(id) {
+  const item = allImoveis.find(i => i.id === id);
+  if (!item) return;
+  currentImovelId = id;
+  document.getElementById('imovel-modal-title').textContent = imovelTipo === 'empreendimentos' ? 'Editar Empreendimento' : 'Editar Terreno';
+  document.getElementById('imovel-modal-body').innerHTML = imovelFormFields(item);
+  document.getElementById('imovel-overlay').classList.add('open');
+}
+
+function closeImovelModal() {
+  document.getElementById('imovel-overlay').classList.remove('open');
+  currentImovelId = null;
+}
+
+async function saveImovel() {
+  let payload;
+  if (imovelTipo === 'empreendimentos') {
+    const nome = document.getElementById('imv-nome').value.trim();
+    if (!nome) { showToast('Atenção', 'Nome é obrigatório.'); return; }
+    payload = {
+      nome,
+      descricao: document.getElementById('imv-descricao').value.trim() || null,
+      sinal_a_partir: parseFloat(document.getElementById('imv-sinal').value) || null,
+      programa: document.getElementById('imv-programa').value.trim() || null,
+      financiamento: document.getElementById('imv-financiamento').value.trim() || null,
+      construtora: document.getElementById('imv-construtora').value.trim() || null,
+      metragem: document.getElementById('imv-metragem').value.trim() || null,
+      quartos: document.getElementById('imv-quartos').value.trim() || null,
+      tag: document.getElementById('imv-tag').value.trim() || null,
+      imagem_capa: document.getElementById('imv-imagem').value.trim() || null,
+      ativo: document.getElementById('imv-ativo').value === 'true',
+    };
+  } else {
+    const identificacao = document.getElementById('imv-identificacao').value.trim();
+    if (!identificacao) { showToast('Atenção', 'Identificação é obrigatória.'); return; }
+    payload = {
+      identificacao,
+      empreendimento_nome: document.getElementById('imv-emp-nome').value.trim() || null,
+      bairro: document.getElementById('imv-bairro').value.trim() || null,
+      valor: parseFloat(document.getElementById('imv-valor').value) || null,
+      area_total: parseFloat(document.getElementById('imv-area-total').value) || null,
+      area_lote: parseFloat(document.getElementById('imv-area-lote').value) || null,
+      forma_pagamento: document.getElementById('imv-pagamento').value.trim() || null,
+      documentacao: document.getElementById('imv-doc').value.trim() || null,
+      infraestrutura: document.getElementById('imv-infra').value.trim() || null,
+      imagem_capa: document.getElementById('imv-imagem').value.trim() || null,
+      ativo: document.getElementById('imv-ativo').value === 'true',
+    };
+  }
+
+  const btn = document.getElementById('imovel-save-btn');
+  btn.disabled = true; btn.textContent = 'Salvando...';
+  const query = currentImovelId
+    ? sb.from(imovelTipo).update(payload).eq('id', currentImovelId)
+    : sb.from(imovelTipo).insert(payload);
+  const { error } = await query;
+  btn.disabled = false; btn.textContent = 'Salvar';
+  if (error) { showToast('Erro', error.message); return; }
+  closeImovelModal();
+  loadImoveis();
+  showToast('Salvo', 'Cadastro atualizado com sucesso.');
+}
+
+async function deleteImovel(id) {
+  if (!confirm('Excluir este cadastro? Essa ação não pode ser desfeita.')) return;
+  const { error } = await sb.from(imovelTipo).delete().eq('id', id);
+  if (error) { showToast('Erro', error.message); return; }
+  loadImoveis();
+  showToast('Excluído', 'Cadastro removido.');
+}
+
+// ─── INIT ────────────────────────────────────────────
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) showApp();
+})();
+
+document.getElementById('login-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>
