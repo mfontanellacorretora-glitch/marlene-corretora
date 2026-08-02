@@ -6,8 +6,6 @@
 <title>Leads · Marlene Corretora</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg: #f0f2f0;
@@ -381,114 +379,6 @@
     font-weight: 500;
   }
 
-  /* ── ETIQUETA DE ORIGEM ── */
-  .origem-tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; font-weight: 600;
-    padding: 2px 8px; border-radius: 20px;
-    text-transform: uppercase; letter-spacing: 0.03em;
-  }
-  .origem-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-  .origem-meta       { color: #2a7a5c; background: rgba(42,122,92,0.12); }
-  .origem-manual     { color: #1a6aa0; background: rgba(26,106,160,0.12); }
-  .origem-imobiliaria{ color: #b08020; background: rgba(176,128,32,0.12); }
-  .origem-importacao { color: #5a3a9a; background: rgba(90,58,154,0.12); }
-  .origem-outro      { color: #6b7e6b; background: rgba(107,126,107,0.12); }
-
-  .btn-add {
-    background: var(--ebm-green);
-    border: 1px solid var(--ebm-green);
-    color: #fff;
-    border-radius: 8px;
-    padding: 7px 14px;
-    font-size: 13px;
-    font-family: inherit;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex; align-items: center; gap: 5px;
-    transition: all 0.2s;
-  }
-  .btn-add:hover { background: var(--ebm-green-dark); }
-
-  /* ── FORM MODAL (novo lead / import) ── */
-  .fm-overlay {
-    position: fixed; inset: 0;
-    background: rgba(19,53,53,0.55);
-    display: none; align-items: center; justify-content: center;
-    z-index: 200; padding: 20px;
-  }
-  .fm-overlay.open { display: flex; }
-  .fm-modal {
-    background: var(--surface);
-    border-radius: 14px;
-    width: 100%; max-width: 480px;
-    max-height: 90vh; overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  }
-  .fm-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .fm-title { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--text); }
-  .fm-close {
-    background: none; border: none; font-size: 24px;
-    color: var(--text-muted); cursor: pointer; line-height: 1;
-  }
-  .fm-body { padding: 20px 24px; }
-  .fm-field { margin-bottom: 16px; }
-  .fm-field label {
-    display: block; font-size: 12px; font-weight: 600;
-    color: var(--text-muted); margin-bottom: 6px;
-    text-transform: uppercase; letter-spacing: 0.04em;
-  }
-  .fm-field input, .fm-field select, .fm-field textarea {
-    width: 100%; padding: 10px 12px;
-    border: 1px solid var(--border); border-radius: 8px;
-    font-family: inherit; font-size: 14px; color: var(--text);
-    background: var(--surface);
-  }
-  .fm-field input:focus, .fm-field select:focus, .fm-field textarea:focus {
-    outline: none; border-color: var(--ebm-green);
-  }
-  .fm-field textarea { resize: vertical; min-height: 70px; }
-  .fm-row { display: flex; gap: 12px; }
-  .fm-row .fm-field { flex: 1; }
-  .fm-footer {
-    padding: 16px 24px; border-top: 1px solid var(--border);
-    display: flex; gap: 10px; justify-content: flex-end;
-  }
-  .fm-btn {
-    padding: 10px 20px; border-radius: 8px;
-    font-family: inherit; font-size: 14px; font-weight: 600;
-    cursor: pointer; border: 1px solid var(--border);
-    background: var(--surface); color: var(--text-muted);
-  }
-  .fm-btn-primary { background: var(--ebm-green); color: #fff; border-color: var(--ebm-green); }
-  .fm-btn-primary:hover { background: var(--ebm-green-dark); }
-  .fm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .fm-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5; }
-  .fm-drop {
-    border: 2px dashed var(--border); border-radius: 10px;
-    padding: 30px 20px; text-align: center; cursor: pointer;
-    color: var(--text-muted); transition: all 0.2s; margin-bottom: 16px;
-  }
-  .fm-drop:hover { border-color: var(--ebm-green); color: var(--ebm-green); background: var(--surface2); }
-  .fm-map-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-bottom: 16px; }
-  .fm-map-grid .fm-field { margin-bottom: 0; }
-  .fm-preview {
-    background: var(--surface2); border-radius: 8px; padding: 12px;
-    font-size: 12px; color: var(--text-muted); margin-bottom: 16px;
-    max-height: 140px; overflow: auto;
-  }
-  .fm-preview strong { color: var(--text); }
-  .fm-import-summary {
-    background: rgba(42,122,92,0.08); border-radius: 8px;
-    padding: 12px 14px; font-size: 13px; color: var(--ebm-green);
-    margin-bottom: 16px; font-weight: 500;
-  }
-
   .date-col { color: var(--text-muted); font-size: 13px; white-space: nowrap; }
 
   .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); }
@@ -638,7 +528,7 @@
   .modal-field .field-val { font-size: 14px; color: var(--text); }
   .modal-field.full { grid-column: 1 / -1; }
 
-  .modal-field select, .modal-field textarea, .modal-field input {
+  .modal-field select, .modal-field textarea {
     width: 100%;
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -651,39 +541,7 @@
     transition: border-color 0.2s;
     resize: vertical;
   }
-  .modal-field select:focus, .modal-field textarea:focus, .modal-field input:focus { border-color: var(--ebm-green); }
-  .modal-field input[type="number"] { -moz-appearance: textfield; }
-  .modal-field input[type="number"]::-webkit-outer-spin-button,
-  .modal-field input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-  /* ── FLUXO DA NEGOCIAÇÃO ── */
-  .fluxo-card {
-    background: linear-gradient(135deg, rgba(176,128,32,0.09), rgba(176,128,32,0.03));
-    border: 1px solid rgba(176,128,32,0.35);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-  }
-  .fluxo-card-title { font-size: 14px; font-weight: 600; color: #8a6418; margin-bottom: 16px; }
-  .fluxo-highlight-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-  .fluxo-highlight-row input, #fluxo-entrada {
-    font-size: 16px; font-weight: 700; border-color: rgba(176,128,32,0.4) !important;
-  }
-  .fluxo-parcel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
-  .fluxo-parcel-item label {
-    display: block; font-size: 11px; font-weight: 500; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 5px;
-  }
-  .fluxo-parcel-pair { display: grid; grid-template-columns: 56px 1fr; gap: 6px; }
-  .fluxo-parcel-pair input { padding: 8px 10px; font-size: 13px; }
-  .fluxo-total-row {
-    display: flex; align-items: baseline; justify-content: space-between;
-    margin-top: 18px; padding-top: 14px; border-top: 1px dashed rgba(176,128,32,0.35);
-  }
-  .fluxo-total-label { font-size: 12px; color: var(--text-muted); }
-  .fluxo-total-value { font-size: 16px; font-weight: 700; color: #8a6418; }
-  .fluxo-total-diff { font-size: 11px; font-weight: 500; margin-left: 8px; }
-  .fluxo-total-diff.ok { color: var(--ebm-green); }
-  .fluxo-total-diff.warn { color: var(--perdido); }
+  .modal-field select:focus, .modal-field textarea:focus { border-color: var(--ebm-green); }
 
   .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
 
@@ -776,7 +634,6 @@
         </svg>
         <div class="notif-badge" id="notif-badge"></div>
       </div>
-      <a class="btn-site" href="imoveis.html" target="_blank" rel="noopener">🏠 Imóveis</a>
       <a class="btn-site" href="https://mfontanellacorretora-glitch.github.io/marlene-corretora" target="_blank" rel="noopener">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
         Ver Site
@@ -832,32 +689,11 @@
         <option value="fechado">Fechado</option>
         <option value="perdido">Perdido</option>
       </select>
-      <select class="filter-select" id="filter-origem" onchange="applyFilters()">
-        <option value="">Todas as origens</option>
-        <option value="meta">Campanha Própria</option>
-        <option value="manual">Manual</option>
-        <option value="imobiliaria">Imobiliária</option>
-        <option value="importacao">Importação</option>
-      </select>
-      <select class="filter-select" id="filter-tipo-interesse" onchange="applyFilters()">
-        <option value="">Empreendimento e Terreno</option>
-        <option value="empreendimento">Empreendimento</option>
-        <option value="terreno">Terreno</option>
-      </select>
       <div class="filters-right">
         <div class="view-toggle">
           <button class="view-btn active" id="btn-table" onclick="setView('table')" title="Tabela">☰ Lista</button>
           <button class="view-btn" id="btn-kanban" onclick="setView('kanban')" title="Kanban">⊞ Kanban</button>
         </div>
-        <button class="btn-add" onclick="openNewLead()" title="Cadastrar lead manualmente">+ Novo Lead</button>
-        <button class="btn-export" onclick="openImport()" title="Importar de planilha">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="17 8 12 3 7 8"/>
-            <line x1="12" y1="3" x2="12" y2="15"/>
-          </svg>
-          Importar
-        </button>
         <button class="btn-refresh" onclick="loadLeads()" title="Atualizar">↻</button>
         <button class="btn-export" onclick="exportCSV()">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -879,7 +715,6 @@
             <tr>
               <th>Nome</th>
               <th>Telefone</th>
-              <th>Origem</th>
               <th>Campanha</th>
               <th>Status</th>
               <th>Score</th>
@@ -909,123 +744,6 @@
   <div id="view-reports">
     <div class="section-title">Relatórios</div>
     <div class="report-grid" id="report-grid"></div>
-  </div>
-</div>
-
-<!-- MODAL NOVO LEAD -->
-<div class="fm-overlay" id="newlead-overlay">
-  <div class="fm-modal">
-    <div class="fm-header">
-      <div class="fm-title">Novo Lead</div>
-      <button class="fm-close" onclick="closeNewLead()">×</button>
-    </div>
-    <div class="fm-body">
-      <div class="fm-field">
-        <label>Nome *</label>
-        <input type="text" id="nl-nome" placeholder="Nome completo">
-      </div>
-      <div class="fm-row">
-        <div class="fm-field">
-          <label>Telefone *</label>
-          <input type="text" id="nl-telefone" placeholder="(62) 90000-0000">
-        </div>
-        <div class="fm-field">
-          <label>E-mail</label>
-          <input type="email" id="nl-email" placeholder="email@exemplo.com">
-        </div>
-      </div>
-      <div class="fm-row">
-        <div class="fm-field">
-          <label>Origem *</label>
-          <select id="nl-origem" onchange="handleOrigemSelectChange(this)"></select>
-        </div>
-        <div class="fm-field">
-          <label>Tipo de Interesse *</label>
-          <select id="nl-tipo-interesse">
-            <option value="empreendimento">Empreendimento</option>
-            <option value="terreno">Terreno</option>
-          </select>
-        </div>
-      </div>
-      <div class="fm-field">
-        <label>Imóvel de Interesse</label>
-        <input type="text" id="nl-emp" placeholder="Ex: NOW Laguna ou Lote Setor Pedro Ludovico">
-      </div>
-      <div class="fm-field">
-        <label>Campanha / Detalhe</label>
-        <input type="text" id="nl-campanha" placeholder="Ex: Indicação, Plantão, Portal">
-      </div>
-      <div class="fm-field">
-        <label>Observação</label>
-        <textarea id="nl-obs" placeholder="Anotações sobre o lead..."></textarea>
-      </div>
-    </div>
-    <div class="fm-footer">
-      <button class="fm-btn" onclick="closeNewLead()">Cancelar</button>
-      <button class="fm-btn fm-btn-primary" id="nl-save" onclick="saveNewLead()">Salvar Lead</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL IMPORTAR -->
-<div class="fm-overlay" id="import-overlay">
-  <div class="fm-modal">
-    <div class="fm-header">
-      <div class="fm-title">Importar Planilha</div>
-      <button class="fm-close" onclick="closeImport()">×</button>
-    </div>
-    <div class="fm-body">
-      <div id="import-step1">
-        <div class="fm-hint">Aceita arquivos <strong>CSV</strong> ou <strong>Excel (.xlsx)</strong>. A primeira linha deve conter os títulos das colunas. No próximo passo você escolhe qual coluna corresponde a cada campo.</div>
-        <div class="fm-drop" id="import-drop" onclick="document.getElementById('import-file').click()">
-          📄 Clique para escolher o arquivo<br><span style="font-size:12px">ou arraste aqui</span>
-        </div>
-        <input type="file" id="import-file" accept=".csv,.xlsx,.xls" style="display:none">
-      </div>
-
-      <div id="import-step2" style="display:none">
-        <div class="fm-hint">Detectamos <strong id="import-count">0</strong> linhas. Associe cada campo do sistema à coluna da sua planilha:</div>
-        <div class="fm-map-grid">
-          <div class="fm-field">
-            <label>Nome *</label>
-            <select id="map-nome"></select>
-          </div>
-          <div class="fm-field">
-            <label>Telefone *</label>
-            <select id="map-telefone"></select>
-          </div>
-          <div class="fm-field">
-            <label>E-mail</label>
-            <select id="map-email"></select>
-          </div>
-          <div class="fm-field">
-            <label>Empreendimento</label>
-            <select id="map-empreendimento"></select>
-          </div>
-          <div class="fm-field">
-            <label>Campanha</label>
-            <select id="map-campanha"></select>
-          </div>
-          <div class="fm-field">
-            <label>Observação</label>
-            <select id="map-observacao"></select>
-          </div>
-        </div>
-        <div class="fm-field">
-          <label>Origem destes leads</label>
-          <select id="import-origem" onchange="handleOrigemSelectChange(this)"></select>
-        </div>
-        <div class="fm-preview" id="import-preview"></div>
-      </div>
-
-      <div id="import-step3" style="display:none">
-        <div class="fm-import-summary" id="import-result"></div>
-      </div>
-    </div>
-    <div class="fm-footer">
-      <button class="fm-btn" onclick="closeImport()">Cancelar</button>
-      <button class="fm-btn fm-btn-primary" id="import-confirm" onclick="confirmImport()" style="display:none">Importar Leads</button>
-    </div>
   </div>
 </div>
 
@@ -1078,10 +796,6 @@
         <div class="field-val" id="modal-email"></div>
       </div>
       <div class="modal-field">
-        <label>Origem</label>
-        <div class="field-val" id="modal-origem"></div>
-      </div>
-      <div class="modal-field">
         <label>Campanha</label>
         <div class="field-val" id="modal-camp"></div>
       </div>
@@ -1089,16 +803,9 @@
         <label>Empreendimento</label>
         <div class="field-val" id="modal-emp"></div>
       </div>
-      <div class="modal-field">
-        <label>Tipo de Interesse</label>
-        <select id="modal-tipo-interesse">
-          <option value="empreendimento">🏠 Empreendimento</option>
-          <option value="terreno">🌳 Terreno</option>
-        </select>
-      </div>
       <div class="modal-field full">
         <label>Status</label>
-        <select id="modal-status" onchange="toggleFluxoBlock()">
+        <select id="modal-status">
           <option value="novo">🟢 Novo</option>
           <option value="contatado">🔵 Contatado</option>
           <option value="negociando">🟡 Negociando</option>
@@ -1109,77 +816,6 @@
       <div class="modal-field full">
         <label>Observação</label>
         <textarea id="modal-obs" rows="4" placeholder="Anotações sobre este lead..."></textarea>
-      </div>
-      <div class="modal-field full" id="fluxo-block" style="display:none">
-        <div class="fluxo-card">
-          <div class="fluxo-card-title">💰 Fluxo da Negociação</div>
-
-          <div class="fluxo-highlight-row">
-            <div class="modal-field">
-              <label>Valor do Imóvel (R$)</label>
-              <input type="text" id="fluxo-valor" placeholder="0,00" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
-            </div>
-            <div class="modal-field">
-              <label>Sinal (R$)</label>
-              <input type="text" id="fluxo-sinal" placeholder="0,00" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
-            </div>
-          </div>
-
-          <div class="modal-field">
-            <label>Entrada (R$)</label>
-            <input type="text" id="fluxo-entrada" placeholder="0,00" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
-          </div>
-
-          <div class="fluxo-parcel-grid">
-            <div class="fluxo-parcel-item">
-              <label>Mensais</label>
-              <div class="fluxo-parcel-pair">
-                <input type="number" id="fluxo-qtd-mensais" min="0" placeholder="Qtd" oninput="calcFluxoTotal()">
-                <input type="text" id="fluxo-valor-mensais" placeholder="R$ valor da parcela" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
-              </div>
-            </div>
-            <div class="fluxo-parcel-item">
-              <label>Semestrais</label>
-              <div class="fluxo-parcel-pair">
-                <input type="number" id="fluxo-qtd-semestrais" min="0" placeholder="Qtd" oninput="calcFluxoTotal()">
-                <input type="text" id="fluxo-valor-semestrais" placeholder="R$ valor da parcela" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
-              </div>
-            </div>
-            <div class="fluxo-parcel-item">
-              <label>Anuais</label>
-              <div class="fluxo-parcel-pair">
-                <input type="number" id="fluxo-qtd-anuais" min="0" placeholder="Qtd" oninput="calcFluxoTotal()">
-                <input type="text" id="fluxo-valor-anuais" placeholder="R$ valor da parcela" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
-              </div>
-            </div>
-            <div class="fluxo-parcel-item">
-              <label>Prosoluto</label>
-              <div class="fluxo-parcel-pair">
-                <input type="number" id="fluxo-qtd-prosoluto" min="0" placeholder="Qtd" oninput="calcFluxoTotal()">
-                <input type="text" id="fluxo-valor-prosoluto" placeholder="R$ valor da parcela" inputmode="numeric" oninput="maskCurrencyInput(this); calcFluxoTotal();">
-              </div>
-            </div>
-          </div>
-
-          <div class="fluxo-total-row">
-            <span class="fluxo-total-label">Total calculado (Sinal + Entrada + Parcelas)</span>
-            <span>
-              <span class="fluxo-total-value" id="fluxo-total-display">R$ 0,00</span>
-              <span class="fluxo-total-diff" id="fluxo-total-diff"></span>
-            </span>
-          </div>
-
-          <div class="modal-grid" style="grid-template-columns:repeat(2,1fr); margin-top:18px; margin-bottom:0">
-            <div class="modal-field">
-              <label>Comissão (%)</label>
-              <input type="number" id="fluxo-comissao-pct" step="0.01" placeholder="0,00" oninput="calcComissao()">
-            </div>
-            <div class="modal-field">
-              <label>Comissão (R$)</label>
-              <input type="text" id="fluxo-comissao-valor" placeholder="0,00" inputmode="numeric" oninput="maskCurrencyInput(this)">
-            </div>
-          </div>
-        </div>
       </div>
     </div>
     <div class="modal-actions">
@@ -1246,71 +882,6 @@ function labelStatus(s) {
   return { novo:'Novo', contatado:'Contatado', negociando:'Negociando', fechado:'Fechado', perdido:'Perdido' }[s] || 'Novo';
 }
 
-// ─── ORIGENS (dinâmicas, via tabela `origens`) ───────
-let origensList = [];
-const ORIGEM_CLASS_FIXA = { meta:'origem-meta', manual:'origem-manual', imobiliaria:'origem-imobiliaria', importacao:'origem-importacao' };
-
-async function loadOrigens() {
-  const { data, error } = await sb.from('origens').select('*').order('nome');
-  origensList = (!error && data && data.length) ? data : [
-    { nome:'Campanha Própria', valor_interno:'meta' },
-    { nome:'Manual', valor_interno:'manual' },
-    { nome:'Imobiliária', valor_interno:'imobiliaria' },
-    { nome:'Importação', valor_interno:'importacao' },
-    { nome:'Outro', valor_interno:'outro' },
-  ];
-  populateOrigemSelects();
-}
-
-function slugify(s) {
-  return (s || '').toString().trim().toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || ('origem_' + Date.now());
-}
-
-function origemNome(o) {
-  const item = origensList.find(x => x.valor_interno === o);
-  if (item) return item.nome;
-  return o || 'Campanha Própria';
-}
-
-function origemTag(o) {
-  const cls = ORIGEM_CLASS_FIXA[o] || 'origem-outro';
-  return `<span class="origem-tag ${cls}">${origemNome(o)}</span>`;
-}
-
-function populateOrigemSelects() {
-  const filterSel = document.getElementById('filter-origem');
-  const filterCurrent = filterSel.value;
-  filterSel.innerHTML = '<option value="">Todas as origens</option>' +
-    origensList.map(o => `<option value="${o.valor_interno}"${o.valor_interno === filterCurrent ? ' selected' : ''}>${o.nome}</option>`).join('');
-
-  const optsComNova = origensList.map(o => `<option value="${o.valor_interno}">${o.nome}</option>`).join('') +
-    '<option value="__new__">+ Nova origem...</option>';
-  document.getElementById('nl-origem').innerHTML = optsComNova;
-  document.getElementById('import-origem').innerHTML = optsComNova;
-}
-
-async function handleOrigemSelectChange(selectEl) {
-  if (selectEl.value !== '__new__') return;
-  const nomeDigitado = window.prompt('Nome da nova origem (ex: Indicação, Portal Zap, OLX):');
-  const fallbackValue = origensList[0] ? origensList[0].valor_interno : 'outro';
-  if (!nomeDigitado || !nomeDigitado.trim()) { selectEl.value = fallbackValue; return; }
-
-  const nome = nomeDigitado.trim();
-  const valor_interno = slugify(nome);
-
-  const existente = origensList.find(o => o.valor_interno === valor_interno);
-  if (existente) { populateOrigemSelects(); selectEl.value = valor_interno; return; }
-
-  const { data, error } = await sb.from('origens').insert({ nome, valor_interno }).select();
-  if (error) { showToast('Erro', error.message); selectEl.value = fallbackValue; return; }
-
-  origensList.push(data[0]);
-  populateOrigemSelects();
-  selectEl.value = valor_interno;
-}
-
 function formatDate(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
@@ -1340,7 +911,6 @@ async function showApp() {
   document.getElementById('app').style.display = 'block';
   const { data: { user } } = await sb.auth.getUser();
   if (user) document.getElementById('user-email').textContent = user.email;
-  await loadOrigens();
   await loadLeads();
   subscribeToNewLeads();
 }
@@ -1381,16 +951,12 @@ function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase();
   const camp = document.getElementById('filter-campanha').value;
   const status = document.getElementById('filter-status').value;
-  const origem = document.getElementById('filter-origem').value;
-  const tipoInteresse = document.getElementById('filter-tipo-interesse').value;
 
   filteredLeads = allLeads.filter(l => {
     const matchSearch = !search || (l.nome||'').toLowerCase().includes(search) || (l.telefone||'').includes(search);
     const matchCamp = !camp || l.campanha === camp;
     const matchStatus = !status || l.status === status;
-    const matchOrigem = !origem || (l.origem || 'meta') === origem;
-    const matchTipo = !tipoInteresse || l.tipo_interesse === tipoInteresse;
-    return matchSearch && matchCamp && matchStatus && matchOrigem && matchTipo;
+    return matchSearch && matchCamp && matchStatus;
   });
 
   if (currentView === 'table') renderTable();
@@ -1428,8 +994,7 @@ function renderTable() {
     <tr onclick="openModal('${l.id}')">
       <td><div class="lead-name">${l.nome || '—'}</div></td>
       <td><div class="lead-phone">${l.telefone || '—'}</div></td>
-      <td>${origemTag(l.origem)}</td>
-      <td><span class="camp-tag">${l.campanha || '—'}</span> <span title="${l.tipo_interesse === 'terreno' ? 'Terreno' : 'Empreendimento'}" style="font-size:13px">${l.tipo_interesse === 'terreno' ? '🌳' : '🏠'}</span></td>
+      <td><span class="camp-tag">${l.campanha || '—'}</span></td>
       <td><span class="badge badge-${l.status || 'novo'}">${labelStatus(l.status)}</span></td>
       <td>
         <div class="score-wrap">
@@ -1470,7 +1035,6 @@ function renderKanban() {
           <div class="kanban-card" onclick="openModal('${l.id}')">
             <div class="kcard-name">${l.nome || 'Sem nome'}</div>
             <div class="kcard-phone">${l.telefone || '—'}</div>
-            <div style="margin:4px 0">${origemTag(l.origem)}</div>
             ${l.campanha ? `<span class="kcard-camp">${l.campanha}</span>` : ''}
             <div class="kcard-metrics">
               <div class="kcard-metric">
@@ -1526,28 +1090,10 @@ function openModal(id) {
   document.getElementById('modal-date').textContent = 'Recebido em ' + formatDate(lead.created_at);
   document.getElementById('modal-phone').textContent = lead.telefone || '—';
   document.getElementById('modal-email').textContent = lead.email || '—';
-  document.getElementById('modal-origem').innerHTML = origemTag(lead.origem);
   document.getElementById('modal-camp').textContent = lead.campanha || '—';
   document.getElementById('modal-emp').textContent = lead.empreendimento || '—';
   document.getElementById('modal-status').value = lead.status || 'novo';
-  document.getElementById('modal-tipo-interesse').value = lead.tipo_interesse || 'empreendimento';
   document.getElementById('modal-obs').value = lead.observacao || '';
-
-  setCurrencyValue('fluxo-valor', lead.valor);
-  setCurrencyValue('fluxo-entrada', lead.entrada);
-  setCurrencyValue('fluxo-sinal', lead.sinal);
-  document.getElementById('fluxo-qtd-mensais').value = lead.qtd_mensais ?? '';
-  setCurrencyValue('fluxo-valor-mensais', lead.valor_mensais);
-  document.getElementById('fluxo-qtd-semestrais').value = lead.qtd_semestrais ?? '';
-  setCurrencyValue('fluxo-valor-semestrais', lead.valor_semestrais);
-  document.getElementById('fluxo-qtd-anuais').value = lead.qtd_anuais ?? '';
-  setCurrencyValue('fluxo-valor-anuais', lead.valor_anuais);
-  document.getElementById('fluxo-qtd-prosoluto').value = lead.qtd_prosoluto ?? '';
-  setCurrencyValue('fluxo-valor-prosoluto', lead.valor_prosoluto);
-  document.getElementById('fluxo-comissao-pct').value = lead.comissao_pct ?? '';
-  setCurrencyValue('fluxo-comissao-valor', lead.comissao_valor);
-  toggleFluxoBlock();
-  calcFluxoTotal();
 
   // métricas
   const mmDias = document.getElementById('mm-dias-criado');
@@ -1581,283 +1127,16 @@ function closeModalDirect() {
   currentLeadId = null;
 }
 
-function toggleFluxoBlock() {
-  const status = document.getElementById('modal-status').value;
-  document.getElementById('fluxo-block').style.display = (status === 'negociando' || status === 'fechado') ? 'block' : 'none';
-}
-
-// ── Moeda BR: máscara enquanto digita + parser para número ──
-function maskCurrencyInput(el) {
-  let v = el.value.replace(/\D/g, '');
-  if (!v) { el.value = ''; return; }
-  v = (parseInt(v, 10) / 100).toFixed(2);
-  el.value = v.replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-function parseCurrency(str) {
-  if (!str) return null;
-  const n = parseFloat(str.toString().replace(/\./g, '').replace(',', '.'));
-  return isNaN(n) ? null : n;
-}
-function setCurrencyValue(id, num) {
-  const el = document.getElementById(id);
-  if (num === null || num === undefined || isNaN(num)) { el.value = ''; return; }
-  el.value = Number(num).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-function formatBRL(num) {
-  return 'R$ ' + Number(num || 0).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-function calcFluxoTotal() {
-  const sinal = parseCurrency(document.getElementById('fluxo-sinal').value) || 0;
-  const entrada = parseCurrency(document.getElementById('fluxo-entrada').value) || 0;
-  const valorImovel = parseCurrency(document.getElementById('fluxo-valor').value) || 0;
-
-  let totalParcelas = 0;
-  ['mensais','semestrais','anuais','prosoluto'].forEach(tipo => {
-    const qtd = parseInt(document.getElementById('fluxo-qtd-' + tipo).value, 10) || 0;
-    const valor = parseCurrency(document.getElementById('fluxo-valor-' + tipo).value) || 0;
-    totalParcelas += qtd * valor;
-  });
-
-  const total = sinal + entrada + totalParcelas;
-  document.getElementById('fluxo-total-display').textContent = formatBRL(total);
-
-  const diffEl = document.getElementById('fluxo-total-diff');
-  if (!valorImovel) { diffEl.textContent = ''; diffEl.className = 'fluxo-total-diff'; return; }
-  const diff = total - valorImovel;
-  if (Math.abs(diff) < 0.01) {
-    diffEl.textContent = '✓ bate com o valor do imóvel';
-    diffEl.className = 'fluxo-total-diff ok';
-  } else {
-    diffEl.textContent = (diff > 0 ? '+' : '') + formatBRL(diff) + ' vs. valor do imóvel';
-    diffEl.className = 'fluxo-total-diff warn';
-  }
-}
-
-function calcComissao() {
-  const valor = parseCurrency(document.getElementById('fluxo-valor').value) || 0;
-  const pct = parseFloat(document.getElementById('fluxo-comissao-pct').value) || 0;
-  if (valor && pct) {
-    setCurrencyValue('fluxo-comissao-valor', valor * pct / 100);
-  }
-}
-
 async function saveLead() {
   if (!currentLeadId) return;
   const status = document.getElementById('modal-status').value;
   const obs = document.getElementById('modal-obs').value;
-  const tipoInteresse = document.getElementById('modal-tipo-interesse').value;
-
-  const updateData = { status, observacao: obs, tipo_interesse: tipoInteresse };
-  if (status === 'negociando' || status === 'fechado') {
-    updateData.valor = parseCurrency(document.getElementById('fluxo-valor').value);
-    updateData.entrada = parseCurrency(document.getElementById('fluxo-entrada').value);
-    updateData.sinal = parseCurrency(document.getElementById('fluxo-sinal').value);
-    updateData.qtd_mensais = parseInt(document.getElementById('fluxo-qtd-mensais').value, 10) || null;
-    updateData.valor_mensais = parseCurrency(document.getElementById('fluxo-valor-mensais').value);
-    updateData.qtd_semestrais = parseInt(document.getElementById('fluxo-qtd-semestrais').value, 10) || null;
-    updateData.valor_semestrais = parseCurrency(document.getElementById('fluxo-valor-semestrais').value);
-    updateData.qtd_anuais = parseInt(document.getElementById('fluxo-qtd-anuais').value, 10) || null;
-    updateData.valor_anuais = parseCurrency(document.getElementById('fluxo-valor-anuais').value);
-    updateData.qtd_prosoluto = parseInt(document.getElementById('fluxo-qtd-prosoluto').value, 10) || null;
-    updateData.valor_prosoluto = parseCurrency(document.getElementById('fluxo-valor-prosoluto').value);
-    updateData.comissao_pct = parseFloat(document.getElementById('fluxo-comissao-pct').value) || null;
-    updateData.comissao_valor = parseCurrency(document.getElementById('fluxo-comissao-valor').value);
-  }
-
-  const { error } = await sb.from('leads').update(updateData).eq('id', currentLeadId);
+  const { error } = await sb.from('leads').update({ status, observacao: obs }).eq('id', currentLeadId);
   if (error) { showToast('Erro', error.message); return; }
   const lead = allLeads.find(l => l.id === currentLeadId);
-  if (lead) Object.assign(lead, updateData, { updated_at: new Date().toISOString() });
+  if (lead) { lead.status = status; lead.observacao = obs; lead.updated_at = new Date().toISOString(); }
   updateStats(); applyFilters(); closeModalDirect();
   showToast('Salvo', 'Lead atualizado com sucesso.');
-}
-
-// ─── NOVO LEAD (manual) ──────────────────────────────
-function openNewLead() {
-  ['nl-nome','nl-telefone','nl-email','nl-emp','nl-campanha','nl-obs'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('nl-tipo-interesse').value = 'empreendimento';
-  const origemSel = document.getElementById('nl-origem');
-  if ([...origemSel.options].some(o => o.value === 'manual')) origemSel.value = 'manual';
-  document.getElementById('newlead-overlay').classList.add('open');
-}
-function closeNewLead() {
-  document.getElementById('newlead-overlay').classList.remove('open');
-}
-async function saveNewLead() {
-  const nome = document.getElementById('nl-nome').value.trim();
-  const telefone = document.getElementById('nl-telefone').value.trim();
-  if (!nome || !telefone) { showToast('Campos obrigatórios', 'Preencha nome e telefone.'); return; }
-
-  const btn = document.getElementById('nl-save');
-  btn.disabled = true; btn.textContent = 'Salvando...';
-
-  const novo = {
-    nome,
-    telefone,
-    email: document.getElementById('nl-email').value.trim() || null,
-    origem: document.getElementById('nl-origem').value,
-    tipo_interesse: document.getElementById('nl-tipo-interesse').value,
-    empreendimento: document.getElementById('nl-emp').value.trim() || null,
-    campanha: document.getElementById('nl-campanha').value.trim() || null,
-    observacao: document.getElementById('nl-obs').value.trim() || null,
-    status: 'novo',
-  };
-
-  const { data, error } = await sb.from('leads').insert(novo).select();
-  btn.disabled = false; btn.textContent = 'Salvar Lead';
-  if (error) { showToast('Erro', error.message); return; }
-
-  if (data && data[0] && !allLeads.find(l => l.id === data[0].id)) {
-    allLeads.unshift(data[0]);
-  }
-  updateStats(); populateCampanhaFilter(); applyFilters();
-  closeNewLead();
-  showToast('✅ Lead cadastrado', `${nome} adicionado com sucesso.`);
-}
-
-// ─── IMPORTAR PLANILHA ───────────────────────────────
-let importRows = [];      // array de objetos {coluna: valor}
-let importHeaders = [];   // nomes das colunas da planilha
-
-function openImport() {
-  importRows = []; importHeaders = [];
-  document.getElementById('import-step1').style.display = 'block';
-  document.getElementById('import-step2').style.display = 'none';
-  document.getElementById('import-step3').style.display = 'none';
-  document.getElementById('import-confirm').style.display = 'none';
-  document.getElementById('import-file').value = '';
-  document.getElementById('import-overlay').classList.add('open');
-}
-function closeImport() {
-  document.getElementById('import-overlay').classList.remove('open');
-}
-
-document.getElementById('import-file').addEventListener('change', handleImportFile);
-
-function handleImportFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const ext = file.name.split('.').pop().toLowerCase();
-
-  if (ext === 'csv') {
-    Papa.parse(file, {
-      header: true, skipEmptyLines: true,
-      complete: (res) => buildMapping(res.data, res.meta.fields || []),
-      error: () => showToast('Erro', 'Não foi possível ler o CSV.')
-    });
-  } else if (ext === 'xlsx' || ext === 'xls') {
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        const wb = XLSX.read(ev.target.result, { type: 'array' });
-        const ws = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
-        const headers = json.length ? Object.keys(json[0]) : [];
-        buildMapping(json, headers);
-      } catch (err) { showToast('Erro', 'Não foi possível ler o Excel.'); }
-    };
-    reader.readAsArrayBuffer(file);
-  } else {
-    showToast('Formato inválido', 'Use CSV ou Excel (.xlsx).');
-  }
-}
-
-function buildMapping(rows, headers) {
-  importRows = rows.filter(r => Object.values(r).some(v => String(v).trim() !== ''));
-  importHeaders = headers;
-  if (!importRows.length) { showToast('Planilha vazia', 'Nenhuma linha encontrada.'); return; }
-
-  document.getElementById('import-count').textContent = importRows.length;
-
-  const opts = '<option value="">— ignorar —</option>' +
-    headers.map(h => `<option value="${h}">${h}</option>`).join('');
-
-  const fields = ['nome','telefone','email','empreendimento','campanha','observacao'];
-  fields.forEach(f => {
-    const sel = document.getElementById('map-' + f);
-    sel.innerHTML = opts;
-    // auto-detecção por similaridade de nome
-    const guess = headers.find(h => {
-      const hl = h.toLowerCase();
-      if (f === 'nome') return hl.includes('nome') || hl.includes('name') || hl.includes('cliente');
-      if (f === 'telefone') return hl.includes('tel') || hl.includes('fone') || hl.includes('whats') || hl.includes('celular');
-      if (f === 'email') return hl.includes('mail') || hl.includes('e-mail');
-      if (f === 'empreendimento') return hl.includes('empreend') || hl.includes('imóvel') || hl.includes('imovel') || hl.includes('produto');
-      if (f === 'campanha') return hl.includes('campanha') || hl.includes('origem') || hl.includes('fonte');
-      if (f === 'observacao') return hl.includes('obs') || hl.includes('nota') || hl.includes('coment');
-      return false;
-    });
-    if (guess) sel.value = guess;
-    sel.onchange = renderImportPreview;
-  });
-
-  document.getElementById('import-step1').style.display = 'none';
-  document.getElementById('import-step2').style.display = 'block';
-  document.getElementById('import-confirm').style.display = 'inline-block';
-  renderImportPreview();
-}
-
-function renderImportPreview() {
-  const mapNome = document.getElementById('map-nome').value;
-  const mapTel = document.getElementById('map-telefone').value;
-  const preview = document.getElementById('import-preview');
-  const sample = importRows.slice(0, 3).map(r => {
-    const nome = mapNome ? r[mapNome] : '(sem nome)';
-    const tel = mapTel ? r[mapTel] : '(sem telefone)';
-    return `<div><strong>${nome || '—'}</strong> · ${tel || '—'}</div>`;
-  }).join('');
-  preview.innerHTML = `<div style="margin-bottom:6px">Prévia (3 primeiras linhas):</div>${sample}`;
-}
-
-async function confirmImport() {
-  const mapNome = document.getElementById('map-nome').value;
-  const mapTel = document.getElementById('map-telefone').value;
-  if (!mapNome || !mapTel) { showToast('Mapeamento incompleto', 'Defina ao menos Nome e Telefone.'); return; }
-
-  const mapEmail = document.getElementById('map-email').value;
-  const mapEmp = document.getElementById('map-empreendimento').value;
-  const mapCamp = document.getElementById('map-campanha').value;
-  const mapObs = document.getElementById('map-observacao').value;
-  const origem = document.getElementById('import-origem').value;
-
-  const btn = document.getElementById('import-confirm');
-  btn.disabled = true; btn.textContent = 'Importando...';
-
-  const novos = importRows.map(r => ({
-    nome: String(r[mapNome] || '').trim() || null,
-    telefone: String(r[mapTel] || '').trim() || null,
-    email: mapEmail ? (String(r[mapEmail] || '').trim() || null) : null,
-    empreendimento: mapEmp ? (String(r[mapEmp] || '').trim() || null) : null,
-    campanha: mapCamp ? (String(r[mapCamp] || '').trim() || null) : null,
-    observacao: mapObs ? (String(r[mapObs] || '').trim() || null) : null,
-    origem,
-    status: 'novo',
-  })).filter(l => l.nome && l.telefone);
-
-  if (!novos.length) { btn.disabled = false; btn.textContent = 'Importar Leads'; showToast('Nada para importar', 'Nenhuma linha com nome e telefone válidos.'); return; }
-
-  // insere em lotes de 200
-  let inseridos = 0, erros = 0;
-  for (let i = 0; i < novos.length; i += 200) {
-    const lote = novos.slice(i, i + 200);
-    const { data, error } = await sb.from('leads').insert(lote).select();
-    if (error) { erros += lote.length; }
-    else if (data) {
-      inseridos += data.length;
-      data.forEach(d => { if (!allLeads.find(l => l.id === d.id)) allLeads.unshift(d); });
-    }
-  }
-
-  btn.disabled = false; btn.textContent = 'Importar Leads';
-  document.getElementById('import-step2').style.display = 'none';
-  document.getElementById('import-confirm').style.display = 'none';
-  document.getElementById('import-step3').style.display = 'block';
-  document.getElementById('import-result').innerHTML =
-    `✅ <strong>${inseridos}</strong> leads importados com sucesso.` +
-    (erros ? `<br>⚠️ ${erros} não puderam ser inseridos.` : '');
-
-  updateStats(); populateCampanhaFilter(); applyFilters();
 }
 
 // ─── REALTIME ────────────────────────────────────────
@@ -1865,9 +1144,8 @@ function subscribeToNewLeads() {
   subscription = sb.channel('leads-channel')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leads' }, payload => {
       const lead = payload.new;
-      if (allLeads.find(l => l.id === lead.id)) return; // já inserido localmente
       allLeads.unshift(lead);
-      updateStats(); populateCampanhaFilter(); applyFilters();
+      updateStats(); applyFilters();
       document.getElementById('notif-badge').style.display = 'block';
       showToast('🟢 Novo Lead!', `${lead.nome || 'Lead'} — ${lead.campanha || ''}`, true);
     }).subscribe();
@@ -1875,9 +1153,9 @@ function subscribeToNewLeads() {
 
 // ─── EXPORT ──────────────────────────────────────────
 function exportCSV() {
-  const rows = [['Nome','Telefone','Email','Origem','Campanha','Empreendimento','Status','Score','Criado há (dias)','Observacao','Data']];
+  const rows = [['Nome','Telefone','Email','Campanha','Empreendimento','Status','Score','Criado há (dias)','Observacao','Data']];
   filteredLeads.forEach(l => {
-    rows.push([l.nome, l.telefone, l.email, origemNome(l.origem), l.campanha, l.empreendimento, l.status, scoreFromLead(l), diasDesde(l.created_at), l.observacao, formatDate(l.created_at)]);
+    rows.push([l.nome, l.telefone, l.email, l.campanha, l.empreendimento, l.status, scoreFromLead(l), diasDesde(l.created_at), l.observacao, formatDate(l.created_at)]);
   });
   const csv = rows.map(r => r.map(v => `"${(v||'').toString().replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob(['\ufeff'+csv], { type: 'text/csv;charset=utf-8;' });
@@ -1936,12 +1214,10 @@ function renderReports() {
 
 // ─── TABS ────────────────────────────────────────────
 function switchTab(tab) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='leads')||(i===1&&tab==='imoveis')||(i===2&&tab==='reports')));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='leads')||(i===1&&tab==='reports')));
   document.getElementById('view-leads').style.display = tab === 'leads' ? 'block' : 'none';
-  document.getElementById('view-imoveis').style.display = tab === 'imoveis' ? 'block' : 'none';
   document.getElementById('view-reports').style.display = tab === 'reports' ? 'block' : 'none';
   if (tab === 'reports') renderReports();
-  if (tab === 'imoveis') loadImoveis();
 }
 
 // ─── TOAST ───────────────────────────────────────────
