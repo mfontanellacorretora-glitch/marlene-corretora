@@ -81,6 +81,9 @@
   .menu a { text-decoration: none; font-size: 14px; font-weight: 500; color: var(--texto-suave); transition: color .2s; }
   .menu a:hover { color: var(--tinta); }
   .topo .btn { padding: 11px 18px; font-size: 14px; }
+  .restrita { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border-radius: 999px; border: 1px solid var(--linha); font-size: 13px; font-weight: 500; color: var(--texto-suave); text-decoration: none; transition: color .2s, border-color .2s; margin-right: 4px; }
+  .restrita:hover { color: var(--tinta); border-color: var(--tinta); }
+  .restrita i { font-size: 12px; }
   .menu-btn { display: none; background: none; border: 0; font-size: 22px; color: var(--tinta); cursor: pointer; padding: 8px; }
 
   /* Hero */
@@ -243,6 +246,7 @@
     .menu.aberto { display: flex; }
     .menu a { display: block; padding: 14px 0; font-size: 16px; border-bottom: 1px solid var(--linha); }
     .topo .btn-whats span { display: none; }
+    .restrita span { display: none; } .restrita { padding: 10px 12px; }
     .hero { padding: 28px 0 72px; }
     .hero-grid, .sobre-grid, .faq-grid, .contato-grid { grid-template-columns: 1fr; gap: 48px; }
     .hero-foto { justify-self: center; width: min(360px, 88%); order: -1; }
@@ -281,6 +285,7 @@
       </ul>
     </nav>
     <div style="display:flex;align-items:center;gap:6px">
+      <a href="leads.html" class="restrita" target="_blank" rel="noopener" aria-label="Área restrita (acesso da corretora)"><i class="fas fa-lock" aria-hidden="true"></i><span>Área restrita</span></a>
       <a href="https://wa.me/5562982680220?text=Ol%C3%A1%20Marlene!%20Vim%20pelo%20site." class="btn btn-whats" target="_blank" rel="noopener"><i class="fab fa-whatsapp" aria-hidden="true"></i><span>Falar no WhatsApp</span></a>
       <button class="menu-btn" id="menu-btn" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu"><i class="fas fa-bars" aria-hidden="true"></i></button>
     </div>
